@@ -7,6 +7,7 @@ import click
 import pymysql
 from flask import Flask, abort, g, jsonify, request
 from werkzeug.exceptions import HTTPException
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .auth import auth, current_user
 from .database import ROOT, SELECT_TASKS, init_db, insert_task, serialize_task, transaction
@@ -70,6 +71,9 @@ def find_task(cursor, task_id):
 
 def create_app():
     app = Flask(__name__, static_folder=ROOT / "dist", static_url_path="")
+    # Enable only when the app is behind one trusted reverse proxy, such as Render.
+    if os.getenv("TRUST_PROXY") == "1":
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     app.config["MAX_CONTENT_LENGTH"] = 65536
     app.register_blueprint(auth)
 
