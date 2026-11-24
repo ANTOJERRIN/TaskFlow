@@ -63,6 +63,7 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   }
 
   if (!response.ok) {
+    if (response.status === 401) window.dispatchEvent(new Event('taskflow-session-expired'));
     const message = await parseErrorMessage(response);
     throw new TaskApiError(message, response.status);
   }

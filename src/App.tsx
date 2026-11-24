@@ -64,7 +64,10 @@ function readInitialTheme(): ThemeMode {
   }
 }
 
-export default function App() {
+export default function App({ onSignOut, isSigningOut }: {
+  onSignOut: () => void;
+  isSigningOut: boolean;
+}) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -446,6 +449,8 @@ export default function App() {
 
       <div className="flex-1 min-w-0 flex flex-col">
         <Header
+          onSignOut={onSignOut}
+          isSigningOut={isSigningOut}
           sectionLabel={sectionLabel}
           viewTitle={viewTitle}
           density={density}

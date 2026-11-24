@@ -1,4 +1,4 @@
-import { AlignJustify, List, Menu, Moon, Plus, Search, Sun } from 'lucide-react';
+import { AlignJustify, List, LogOut, Menu, Moon, Plus, Search, Sun } from 'lucide-react';
 import type { ListDensity, ThemeMode } from '../types/task';
 
 interface HeaderProps {
@@ -11,6 +11,8 @@ interface HeaderProps {
   onOpenMobileMenu: () => void;
   onOpenCommandPalette: () => void;
   onOpenNewTask: () => void;
+  onSignOut: () => void;
+  isSigningOut: boolean;
 }
 
 export function Header({
@@ -23,6 +25,8 @@ export function Header({
   onOpenMobileMenu,
   onOpenCommandPalette,
   onOpenNewTask,
+  onSignOut,
+  isSigningOut,
 }: HeaderProps) {
   const isDark = theme === 'dark';
 
@@ -107,6 +111,16 @@ export function Header({
           >
             <Plus className="w-4 h-4 stroke-[2.2] text-[var(--tf-accent-ink)]" aria-hidden="true" />
             <span>New Task</span>
+          </button>
+          <button
+            type="button"
+            onClick={onSignOut}
+            disabled={isSigningOut}
+            aria-label="Sign out"
+            title="Sign out"
+            className="grid size-9 place-items-center rounded-lg text-[var(--tf-ink-secondary)] hover:bg-[var(--tf-surface-hover)] disabled:opacity-50"
+          >
+            <LogOut className="size-4" aria-hidden="true" />
           </button>
         </div>
       </div>

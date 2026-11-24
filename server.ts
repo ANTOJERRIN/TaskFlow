@@ -2,10 +2,12 @@ import 'dotenv/config';
 import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { TaskFilter } from './src/types/task.ts';
 import { createFileTaskStore, StoreValidationError } from './server/taskStore.ts';
 
 const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST?.trim() || '127.0.0.1';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 const ALLOWED_ORIGINS = new Set<string>([
@@ -151,14 +153,14 @@ async function startServer() {
     app.use(vite.middlewares);
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`TaskFlow server listening on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`TaskFlow server listening on ${HOST}:${PORT}`);
   });
 }
 
 const isEntryPoint =
   typeof process.argv[1] === 'string' &&
-  path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isEntryPoint) {
   startServer();

@@ -14,7 +14,7 @@ import {
   reorderTaskList,
   resolveInitialTheme,
   validateTaskTitle,
-} from './taskLogic';
+} from './taskLogic.ts';
 
 test('validateTaskTitle rejects empty and whitespace-only titles', () => {
   assert.equal(validateTaskTitle('').valid, false);

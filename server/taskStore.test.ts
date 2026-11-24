@@ -7,7 +7,7 @@ import {
   createFileTaskStore,
   resolveSafeStorePath,
   StoreValidationError,
-} from './taskStore';
+} from './taskStore.ts';
 
 function withTempDir(fn: (dir: string) => void) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'taskflow-store-'));
@@ -23,6 +23,20 @@ test('resolveSafeStorePath rejects directory traversal outside data dir', () => 
     () => resolveSafeStorePath('/tmp/taskflow-data', '../etc/passwd'),
     StoreValidationError
   );
+});
+
+test('createFileTaskStore preserves invalid data when a write is attempted', () => {
+  withTempDir((dir) => {
+    const file = path.join(dir, 'tasks.json');
+    const store = createFileTaskStore(dir);
+
+    for (const invalidData of ['{', '{}', '[null]']) {
+      fs.writeFileSync(file, invalidData, 'utf8');
+      assert.throws(() => store.list());
+      assert.throws(() => store.create({ title: 'New task' }));
+      assert.equal(fs.readFileSync(file, 'utf8'), invalidData);
+    }
+  });
 });
 
 test('createFileTaskStore supports full CRUD, validation, reorder, and empty persistence', () => {

@@ -89,19 +89,14 @@ export function createFileTaskStore(dataDir: string) {
       writeAll(seeded);
       return seeded;
     }
-    try {
-      const content = fs.readFileSync(safeFilePath, 'utf8');
-      const parsed: unknown = JSON.parse(content);
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-      return parsed
-        .filter(isValidStoredTask)
-        .map((task, idx) => hydrateTask(task, idx))
-        .sort((a, b) => a.order - b.order);
-    } catch {
-      return [];
+    const content = fs.readFileSync(safeFilePath, 'utf8');
+    const parsed: unknown = JSON.parse(content);
+    if (!Array.isArray(parsed) || !parsed.every(isValidStoredTask)) {
+      throw new Error('Invalid task storage data.');
     }
+    return parsed
+      .map((task, idx) => hydrateTask(task, idx))
+      .sort((a, b) => a.order - b.order);
   }
 
   function list(status: TaskFilter = 'all'): Task[] {
