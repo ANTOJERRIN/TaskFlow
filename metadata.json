@@ -1,0 +1,6 @@
+{
+  "name": "TaskFlow",
+  "description": "A minimalist, focused task manager for friction-free daily execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

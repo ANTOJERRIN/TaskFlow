@@ -1,0 +1,75 @@
+[
+  {
+    "id": "seed-1",
+    "title": "Review Q4 product roadmap and milestone targets",
+    "description": "Confirm engineering estimates and finalize release dates with design.",
+    "completed": false,
+    "dueDate": "2026-11-24",
+    "priority": "high",
+    "project": "Product",
+    "tags": [
+      "roadmap",
+      "q4"
+    ],
+    "order": 0,
+    "createdAt": "2026-11-24T09:09:11.590Z"
+  },
+  {
+    "id": "seed-2",
+    "title": "Submit quarterly accessibility audit checklist",
+    "description": "Verify focus ring contrast and keyboard tab order across modals.",
+    "completed": false,
+    "dueDate": "2026-11-22",
+    "priority": "high",
+    "project": "Design",
+    "tags": [
+      "a11y",
+      "audit"
+    ],
+    "order": 1,
+    "createdAt": "2026-11-23T12:09:11.590Z"
+  },
+  {
+    "id": "seed-3",
+    "title": "Connect frontend taskService to live REST API endpoints",
+    "description": "Verify GET, POST, PUT, PATCH toggle, reorder, and DELETE error handling.",
+    "completed": false,
+    "dueDate": "2026-11-27",
+    "priority": "medium",
+    "project": "Engineering",
+    "tags": [
+      "api",
+      "backend"
+    ],
+    "order": 2,
+    "createdAt": "2026-11-24T10:39:11.590Z"
+  },
+  {
+    "id": "seed-4",
+    "title": "Schedule dentist checkup and renew gym membership",
+    "description": "Book an early morning appointment before next sprint kickoff.",
+    "completed": false,
+    "dueDate": "2026-11-29",
+    "priority": "low",
+    "project": "Personal",
+    "tags": [
+      "errands"
+    ],
+    "order": 3,
+    "createdAt": "2026-11-24T11:09:11.590Z"
+  },
+  {
+    "id": "seed-5",
+    "title": "Audit typography scale and spacing tokens",
+    "description": "Ensure Inter 400/500/600 weights and 4px baseline alignment match spec.",
+    "completed": true,
+    "dueDate": "2026-11-23",
+    "priority": "medium",
+    "project": "Design",
+    "tags": [
+      "tokens"
+    ],
+    "order": 4,
+    "createdAt": "2026-11-22T12:09:11.590Z"
+  }
+]
