@@ -86,4 +86,4 @@ If MySQL is still starting, rerun `init-db` when it is ready. On existing instal
 
 ## Local operating scope
 
-The current launcher runs Flask’s local development server. MySQL persists its data in the Compose volume. Local configuration belongs in the ignored `.env` file. For HTTPS behind a proxy, Flask supports `SESSION_COOKIE_SECURE=1`; the proxy configuration must preserve the correct browser origin for API writes.
+The current launcher runs Flask’s local development server. MySQL persists its data in the Compose volume. Local configuration belongs in the ignored `.env` file. For HTTPS behind a proxy, Flask supports `SESSION_COOKIE_SECURE=1`. The proxy configuration must preserve the correct browser origin for API writes.
