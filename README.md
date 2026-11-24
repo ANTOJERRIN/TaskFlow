@@ -27,6 +27,30 @@ Run `init-db` on existing installations before restarting Flask. Old unassigned 
 
 For UI development, leave Flask running and run `npm run dev` in another terminal. Vite serves the UI and proxies `/api` to Flask. If you change the Flask port, set `TASKFLOW_API_PROXY` in the terminal running Vite.
 
+## Deploy on Render
+
+TaskFlow runs as a single Python web service that serves the built React frontend and Flask API. A separate reachable MySQL database must already exist; Render does not automatically run the local Compose database. MySQL must allow the database user to create and alter tables. Some hosted MySQL providers require TLS settings that this application does not yet configure.
+
+Create a **Web Service** using the repository's `main` branch, Python runtime, and an empty root directory. Set:
+
+- Build command: `pip install -r requirements.txt gunicorn && npm install && npm run build`
+- Start command: `flask --app backend.app init-db && gunicorn --bind 0.0.0.0:$PORT 'backend.app:create_app()'`
+- Optional health check path: `/api/health`
+
+Add these environment variables in Render:
+
+| Key | Value |
+| --- | --- |
+| `MYSQL_HOST` | MySQL hostname |
+| `MYSQL_PORT` | MySQL port (often 3306) |
+| `MYSQL_DATABASE` | Existing MySQL database name |
+| `MYSQL_USER` | MySQL username |
+| `MYSQL_PASSWORD` | MySQL password |
+| `TRUST_PROXY` | `1` for Render's reverse proxy |
+| `SESSION_COOKIE_SECURE` | `1` when served over HTTPS |
+
+Keep passwords out of Git. Leave `VITE_API_URL` unset to use the same-origin API. The start command initializes the schema on each start and will fail until the database is available. After deployment, visit `/api/health`, create an account, and verify that a task persists after refreshing. For larger production deployments, use managed schema migrations rather than initializing on every start. Only enable `TRUST_PROXY` behind a trusted proxy.
+
 ## Task API
 
 | Method | Path | Action |
