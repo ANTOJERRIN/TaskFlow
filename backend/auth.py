@@ -5,7 +5,8 @@ from hashlib import sha256
 from secrets import token_urlsafe
 from uuid import uuid4
 
-import pymysql
+from psycopg.errors import UniqueViolation
+from pymysql.err import IntegrityError
 from flask import Blueprint, abort, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -30,8 +31,8 @@ def current_user():
         cursor.execute("""
             SELECT users.id, users.email FROM login_sessions
             JOIN users ON users.id = login_sessions.user_id
-            WHERE token_hash = %s AND expires_at > UTC_TIMESTAMP()
-        """, (token,))
+            WHERE token_hash = %s AND expires_at > %s
+        """, (token, datetime.now(timezone.utc).replace(tzinfo=None)))
         return cursor.fetchone()
 
 
@@ -42,7 +43,7 @@ def sign_in_user(cursor, user, remember):
     previous = cookie_hash()
     if previous:
         cursor.execute("DELETE FROM login_sessions WHERE token_hash = %s", (previous,))
-    cursor.execute("INSERT INTO login_sessions VALUES (%s, %s, %s)",
+    cursor.execute("INSERT INTO login_sessions (token_hash, user_id, expires_at) VALUES (%s, %s, %s)",
                    (sha256(token.encode()).digest(), user["id"], expires))
     response = jsonify(user=user)
     response.set_cookie(
@@ -79,10 +80,10 @@ def authenticate(action):
         user = {"id": str(uuid4()), "email": email}
         with transaction() as cursor:
             try:
-                cursor.execute("INSERT INTO users VALUES (%s, %s, %s)",
+                cursor.execute("INSERT INTO users (id, email, password_hash) VALUES (%s, %s, %s)",
                                (user["id"], email, password_hash))
-            except pymysql.err.IntegrityError as error:
-                if error.args[0] != 1062:
+            except (IntegrityError, UniqueViolation) as error:
+                if isinstance(error, IntegrityError) and error.args[0] != 1062:
                     raise
                 abort(409, "An account already uses that email. Sign in instead.")
             return sign_in_user(cursor, user, body.get("remember") is True), 201

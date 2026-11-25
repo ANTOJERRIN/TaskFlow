@@ -1,6 +1,6 @@
 # TaskFlow
 
-TaskFlow is a React task manager backed by a Flask REST API and MySQL.
+TaskFlow is a React task manager backed by a Flask REST API. It uses MySQL for the local Docker setup and PostgreSQL on Render.
 
 ## Run locally on Windows
 
@@ -9,7 +9,7 @@ Install Node.js, Python, and Docker Desktop. From the repository in PowerShell, 
 ```powershell
 python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements.txt
-npm install
+npm ci
 ```
 
 Copy `.env.example` to `.env` if it doesn't already exist. Set `MYSQL_PASSWORD` to a strong local password. The MySQL container uses `MYSQL_DATABASE`, `MYSQL_USER`, and `MYSQL_PASSWORD` when it first creates its persistent volume.
@@ -29,27 +29,11 @@ For UI development, leave Flask running and run `npm run dev` in another termina
 
 ## Deploy on Render
 
-TaskFlow runs as a single Python web service that serves the built React frontend and Flask API. A separate reachable MySQL database must already exist; Render does not automatically run the local Compose database. MySQL must allow the database user to create and alter tables. Some hosted MySQL providers require TLS settings that this application does not yet configure.
+Create a Render Blueprint from this repository. The `render.yaml` file configures a Python web service that serves the built React frontend and Flask API, along with a PostgreSQL database in the same region. Render supplies the internal database connection as `DATABASE_URL`. The startup command initializes the schema before Gunicorn starts, and Render checks the app and database through `/api/health`.
 
-Create a **Web Service** using the repository's `main` branch, Python runtime, and an empty root directory. Set:
+The Blueprint uses Render's free plans. The web service can spin down when idle, and the free database expires after 30 days. The Render database starts empty. Existing local MySQL accounts and tasks require a separate migration.
 
-- Build command: `pip install -r requirements.txt gunicorn && npm install && npm run build`
-- Start command: `flask --app backend.app init-db && gunicorn --bind 0.0.0.0:$PORT 'backend.app:create_app()'`
-- Optional health check path: `/api/health`
-
-Add these environment variables in Render:
-
-| Key | Value |
-| --- | --- |
-| `MYSQL_HOST` | MySQL hostname |
-| `MYSQL_PORT` | MySQL port (often 3306) |
-| `MYSQL_DATABASE` | Existing MySQL database name |
-| `MYSQL_USER` | MySQL username |
-| `MYSQL_PASSWORD` | MySQL password |
-| `TRUST_PROXY` | `1` for Render's reverse proxy |
-| `SESSION_COOKIE_SECURE` | `1` when served over HTTPS |
-
-Keep passwords out of Git. Leave `VITE_API_URL` unset to use the same-origin API. The start command initializes the schema on each start and will fail until the database is available. After deployment, visit `/api/health`, create an account, and verify that a task persists after refreshing. For larger production deployments, use managed schema migrations rather than initializing on every start. Only enable `TRUST_PROXY` behind a trusted proxy.
+After deployment, open the service URL, create an account, and verify that a task persists after refreshing.
 
 ## Task API
 

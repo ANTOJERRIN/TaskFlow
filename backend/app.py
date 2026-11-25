@@ -4,13 +4,12 @@ from datetime import date, datetime, timezone
 from uuid import uuid4
 
 import click
-import pymysql
 from flask import Flask, abort, g, jsonify, request
 from werkzeug.exceptions import HTTPException
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .auth import auth, current_user
-from .database import ROOT, SELECT_TASKS, init_db, insert_task, serialize_task, transaction
+from .database import DATABASE_ERRORS, ROOT, SELECT_TASKS, init_db, insert_task, serialize_task, transaction
 
 
 def task_fields(body, existing):
@@ -100,9 +99,11 @@ def create_app():
     def initialize():
         try:
             init_db()
-        except (pymysql.MySQLError, OSError) as error:
+        except DATABASE_ERRORS as error:
+            raise click.ClickException("Database initialization failed. " + str(error)) from error
+        except (RuntimeError, OSError) as error:
             raise click.ClickException(str(error)) from error
-        click.echo("MySQL schema ready.")
+        click.echo("TaskFlow database schema ready.")
 
     @app.errorhandler(HTTPException)
     def http_error(error):
@@ -110,10 +111,12 @@ def create_app():
             return jsonify(error=error.description), error.code
         return error
 
-    @app.errorhandler(pymysql.MySQLError)
     def database_error(error):
-        app.logger.error("MySQL operation failed: %s", error.args[0])
+        app.logger.error("Database operation failed: %s", type(error).__name__)
         return jsonify(error="Task database unavailable."), 503
+
+    for error_type in DATABASE_ERRORS:
+        app.register_error_handler(error_type, database_error)
 
     @app.get("/")
     @app.get("/login")
